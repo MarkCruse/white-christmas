@@ -4,3 +4,5 @@ This project uses aggregated data from the National Centers for Environmental In
 The map represented in the project is not intended to predict a White Christmas on December 25th.  It is intended to show areas with the highest probability of snow cover based on the historical data.
 
 Data source: https://www.ncdc.noaa.gov/sites/default/files/attachments/Christmas_Snow_Statistics_2016.xlsx
+Rename header info to remove > sign and _ spaces
+Two GHCN_ID records - USC00195984 & USW00013904 have missing lat/lon, elevation, state, and station name fields. Corrected the records with data from: https://geographic.org/global_weather/massachusetts/norton_west_984.html & https://geographic.org/global_weather/texas/austin_bergstrom_ap_904.html.
