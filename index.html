@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>Probability of a White Christmas</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.42.2/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.42.2/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.12.0/d3.min.js"></script>
+    <style>
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+    </style>
+</head>
+<body>
+
+<div id='map'></div>
+<script>
+    // access token
+    mapboxgl.accessToken = 'pk.eyJ1IjoibWRjcnVzZSIsImEiOiJjaXphYnhyaXMwMm1zMnFvOHVhanZtMGZ5In0.xnbrvIVE2IXBudC4OwuZtw';
+
+    // Create a popup, but don't add it to the map yet.
+    var popup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false
+    });
+
+    // create a new map
+    var map = new mapboxgl.Map({
+        container: 'map', // container id
+        // style: 'mapbox://styles/mapbox/dark-v9', // stylesheet location
+        // style: 'mapbox://styles/mdcruse/cjb455y4au2p72rsua4gzn3cy',
+        style: 'mapbox://styles/mapbox/outdoors-v10',
+        center: [-98.35, 36.50],    //center on the continental center of US
+        zoom: 4.2 // starting zoom
+    });
+
+    map.on('load', function () {
+
+        // request our GEOJSON data
+        d3.json('data/xmas_snow_stats_point_data.json', function (geojson) {
+            // when loaded
+            addLayer(geojson);
+        });
+    
+        function addLayer(geojson) {
+            map.addLayer({
+                'id': 'snowStats',
+                'type': 'circle',
+                'source': {
+                    'type': 'geojson',
+                    'data': geojson // use the data as the data source}
+                },
+                // 'source-layer': 'points',  //???????????????
+                'paint': {
+                    // make circles larger as the user zooms from z12 to z22
+                    'circle-radius': {
+                        'base': 1.75,
+                        'stops': [[12, 2], [22, 180]]
+                    },
+                    // color circles by snow_depth, using data-driven styles
+                    'circle-color': {
+                        "property": "Probability_of_Snow_Depth_GT_0",
+                        "type": "exponential",
+                        stops: [
+                            [1, "rgb(81,98,128)"],
+                            [2, "rgb(80,97,127)"],
+                            [3, "rgb(67,107,175)"],
+                            [4, "rgb(66,133,212)"],
+                            [5, "rgb(140,185,227)"],
+                            [6, "rgb(199,218,235)"]]
+                    }
+                }
+            });
+        }
+    });
+</script>
+
+</body>
+</html>
