@@ -55,20 +55,20 @@
                 'paint': {
                     // make circles larger as the user zooms from z12 to z22
                     'circle-radius': {
-                        'base': 1.75,
-                        'stops': [[12, 2], [22, 180]]
+                        'base': 2.75,
+                        'stops': [[4, 2.5], [7, 20]]
                     },
                     // color circles by snow_depth, using data-driven styles
                     'circle-color': {
                         "property": "Probability_of_Snow_Depth_GT_0",
                         "type": "exponential",
                         stops: [
-                            [1, "rgb(81,98,128)"],
-                            [2, "rgb(80,97,127)"],
-                            [3, "rgb(67,107,175)"],
-                            [4, "rgb(66,133,212)"],
-                            [5, "rgb(140,185,227)"],
-                            [6, "rgb(199,218,235)"]]
+                            [.1, "rgb(81,98,128)"],
+                            [.2, "rgb(80,97,127)"],
+                            [.3, "rgb(67,107,175)"],
+                            [.4, "rgb(66,133,212)"],
+                            [.5, "rgb(140,185,227)"],
+                            [.6, "rgb(199,218,235)"]]
                     }
                 }
             });
