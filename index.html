@@ -46,6 +46,7 @@
     
         function addLayer(geojson) {
             console.log(geojson);
+            //Add a layer for the point data
             map.addLayer({
                 'id': 'snowStats',
                 'type': 'circle',
@@ -72,16 +73,86 @@
                             [.75, "rgb(54, 109, 237)"],
                             [1, "rgb(37,95,219)"]]
                     },
-
+                    "circle-stroke-color": "white",
+                    "circle-stroke-width": .3,
                     "circle-opacity": {
                         "stops": [
-                            [0, 0],
                             [.05, 0],
-                            [1, 1]
+                            [7, 1]
                         ]
                     }
+                    // "circle-opacity": {
+                    //     "stops": [
+                    //         [0, 0],
+                    //         [.05, 0],
+                    //         [1, 1]
+                    //     ]
+                    // }
                 }
             });  // end addLayer point data
+
+            //Add a layer for the heatmap data
+                        map.addLayer({
+                "id": "snow-heat",
+                "type": "heatmap",
+                'source': {
+                    'type': 'geojson',
+                    'data': geojson // use the data as the data source}
+                },
+                "maxzoom": 9,
+                "paint": {
+                    //Increase the heatmap weight based on 
+                    "heatmap-weight": {
+                        // "property": "Probability_of_Snow_Depth_>_0",
+                        "property": "Probability_of_Snow_Depth_GT_0",
+                        "type": "exponential",
+                        "stops": [
+                            [0, 0],
+                            [1, 6]
+                        ]
+                    },
+                    //Increase the heatmap color weight weight by zoom level
+                    //heatmap-intensity is a multiplier on top of heatmap-weight
+                    "heatmap-intensity": {
+                        "stops": [
+                            [0, 1],
+                            [9, 3]
+                        ]
+                    },
+                    //Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
+                    //Begin color ramp at 0-stop with a 0-transparancy color
+                    //to create a blur-like effect.
+                    "heatmap-color": [
+                        "interpolate",
+                        ["linear"],
+                        ["heatmap-density"],
+                        // 0, "rgb(81,98,128)",
+                        0, "rgb(186,213,238)",
+                        0.2, "rgb(209,227,243)",
+                        0.4, "rgb(220,234,246)",
+                        0.6, "rgb(232,241,249)",
+                        0.8, "rgb(243,248,252)",
+                        1, "rgb(246,246,246)"
+                    ],
+                    //Adjust the heatmap radius by zoom level
+                    "heatmap-radius": {
+                        "stops": [
+                            [0, 2],
+                            [9, 20]
+                        ]
+                    },
+                    //Transition from heatmap to circle layer by zoom level
+                    "heatmap-opacity": {
+                        "default": 1,
+                        "stops": [
+                            [7, 1],
+                            [9, 0]
+                        ]
+                    },
+                }
+
+            }); //end add layer heat
+
         }  
         function addInteraction(geojson) {
             //Use mousemove to track the geo location of the mouse pointer
