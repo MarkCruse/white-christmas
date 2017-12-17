@@ -42,9 +42,7 @@
     // create a new map
     var map = new mapboxgl.Map({
         container: 'map', // container id
-        // style: 'mapbox://styles/mapbox/dark-v9', // stylesheet location
-        // style: 'mapbox://styles/mdcruse/cjb455y4au2p72rsua4gzn3cy',
-        style: 'mapbox://styles/mapbox/outdoors-v10',
+        style: 'mapbox://styles/mapbox/outdoors-v10', // stylesheet location
         center: [-98.35, 36.50],    //center on the continental center of US
         zoom: 4.2 // starting zoom
     });
@@ -103,13 +101,6 @@
                             [7, 1]
                         ]
                     }
-                    // "circle-opacity": {
-                    //     "stops": [
-                    //         [0, 0],
-                    //         [.05, 0],
-                    //         [1, 1]
-                    //     ]
-                    // }
                 }
             });  // end addLayer point data
 
@@ -203,7 +194,7 @@
 
                     // Populate the popup based on the feature found. At the current coordinates.
                     popup.setLngLat(f.lngLat)
-                      .setHTML('<font size="2"><b>' + e.features[0].properties.Name + ' - ' + e.features[0].properties.State  + '</b><br />Elevation: <b>' + e.features[0].properties.Elev + ' ft </b><br />' +
+                        .setHTML('<font size="2"><b>' + e.features[0].properties.Name + ' - ' + e.features[0].properties.State  + '</b><br />Elevation: <b>' + e.features[0].properties.Elev + ' ft </b><br />' +
                              'Probability of Snow Depth > 0: <b>' + ((e.features[0].properties.Probability_of_Snow_Depth_GT_0) * 100).toLocaleString() + '% </b><br />' + 
                              'Median Snow Depth > 0: <b>' + e.features[0].properties.Median_of_Snow_Depth_GT_0_inches + '</b><br />' + 
                              'Probability of Snowfall > 1": <b>' + ((e.features[0].properties.Probability_of_Snowfall_GT_0) * 100).toLocaleString() + '% </b><br />' +
