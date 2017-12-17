@@ -6,7 +6,7 @@ fs.readFile('project-files/Christmas_Snow_Statistics_2016.csv', 'utf-8', (err, c
 
     if (err) throw err;
 
-    // console.log(csvString) // really long string
+    //console.log(csvString) // really long string
 
     // convert to GeoJSON
     csv2geojson.csv2geojson(csvString, {
@@ -44,13 +44,21 @@ function filterFields(geojson) {
         for (var prop in feature.properties) {
             // if it's a match
             if (prop === 'Probability_of_Snow_Depth_GT_0' || prop === 'Probability_of_Snowfall_GT_0') {
-                // create the prop/value
+
+                if (feature.properties[prop] === '-9999' || feature.properties[prop] === '-6666' || feature.properties[prop] === '-5555')
+                    tempProps[prop] = 0;
+                else
                 tempProps[prop] = (parseInt(feature.properties[prop]))/100;
-                if (tempProps[prop] > .30) {
-                console.log(tempProps);
-                }
-            } else 
+
+            } else if (prop === 'Median_of_Snow_Depth_GT_0_inches' || prop === 'Median_of_Snowfall_GT_0_inches') {
+                if (feature.properties[prop] === '-9999' || feature.properties[prop] === '-6666' || feature.properties[prop] === '-5555')
+                    tempProps[prop] = 0;
+                else 
                 tempProps[prop] = feature.properties[prop];
+            } else
+                // pass the other prop values
+                tempProps[prop] = feature.properties[prop];
+            console.log(tempProps)
         }
         // now push a new feature to the newFeatures array
         // we will use the existing feature type and geometry,
