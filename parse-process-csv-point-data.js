@@ -49,7 +49,8 @@ function filterFields(geojson) {
                 if (tempProps[prop] > .30) {
                 console.log(tempProps);
                 }
-            }
+            } else 
+                tempProps[prop] = feature.properties[prop];
         }
         // now push a new feature to the newFeatures array
         // we will use the existing feature type and geometry,
