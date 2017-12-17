@@ -41,6 +41,7 @@
         d3.json('data/xmas_snow_stats_point_data.json', function (geojson) {
             // when loaded
             addLayer(geojson);
+            addInteraction(geojson)
         });
     
         function addLayer(geojson) {
@@ -71,9 +72,42 @@
                             [1, "rgb(202,222,242)"]]
                     }
                 }
+            });  // end addLayer point data
+        }  
+        function addInteraction(geojson) {
+            //Use mousemove to track the geo location of the mouse pointer
+            //the location is critical for the popup box
+
+            map.on('mousemove', function (f) {
+                // console.log(f);
+
+                map.on('mouseenter', 'snowStats', function (e) {
+                    var features = map.queryRenderedFeatures(e.point);
+                    // console.log(e);
+                    // console.log(e.features[0].properties.Name);
+                    //console.log(e.features[0].properties.Probability_of_Snow_Depth_GT_0);
+
+                    // Change the cursor style as a UI affordance.
+                    map.getCanvas().style.cursor = 'pointer';
+
+                    // Populate the popup based on the feature found. At the current coordinates.
+                    popup.setLngLat(f.lngLat)
+                        // .setHTML("Coordinates: " + (f.lngLat.lng) + ", " + (f.lngLat.lat) + " " + e.features[0].properties.ZONE)
+                        // .setHTML('<font size="4">' + e.features[0].properties.Median_of_Snow_Depth_ > _0_(inches) + '</font>')
+                        .setHTML('<font size="4">' + ((e.features[0].properties.Probability_of_Snow_Depth_GT_0) * 100).toLocaleString() + '% chance of a White Christmas' + '</font>')
+                        .addTo(map);
+                });
+
+            });
+
+            // Change cursor back to a pointer when mouse leaves snowStats
+            // Turn off popip up mouse leaving snowStats
+            map.on('mouseleave', 'snowStats', function () {
+                map.getCanvas().style.cursor = '';
+                popup.remove();
             });
         }
-    });
+    }); //end map load
 </script>
 
 </body>
