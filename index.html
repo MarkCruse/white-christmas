@@ -57,6 +57,14 @@
             addLayer(geojson);
             addInteraction(geojson)
         });
+
+        map.fitBounds([-124.8, 24.53, -65.83, 49.38], {
+            padding: {
+                top: 10, bottom: 100, left: 20, right: 200
+            }
+        });
+        // set the max bounds
+        map.setMaxBounds(map.getBounds())
     
         function addLayer(geojson) {
             //console.log(geojson);
