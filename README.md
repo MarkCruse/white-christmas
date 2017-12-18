@@ -12,6 +12,3 @@ CSV file - Rename header info to remove > sign and _ spaces
 In the original csv file 2 records with GHCN_ID's equal to USC00195984 & USW00013904 have missing lat/lon, elevation, state, and station name fields. Corrected the records with data from: https://geographic.org/global_weather/massachusetts/norton_west_984.html & https://geographic.org/global_weather/texas/austin_bergstrom_ap_904.html.
 
 Data is converted to json from csv and processed using Node.js.  The node.js script, parse-process-csv-point-data.js, converts the csv to json, changes the probability fields from text to decimal number, removes all negative values and replaces them with 0.
-
-### Representation of Data in Heatmap
-Although clustering of data is represented in heatmaps the attempt being made in this example is to show the probability as the indicator and color. 
