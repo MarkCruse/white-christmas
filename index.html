@@ -13,6 +13,48 @@
     </style>
 </head>
 <body>
+<style>
+    #menu { 
+        background: #fff;
+        position: absolute;
+        z-index: 1;
+        top: 99px;
+        right: 10px;
+        border-radius: 3px;
+        width: 120px; border: 1px solid rgba(0,0,0,0.4);
+        font-family: 'Open Sans', sans-serif; 
+    } 
+    #menu a { 
+        font-size: 13px; 
+        color: #404040; 
+        display: block;
+        margin: 0; 
+        padding: 0; 
+        padding: 10px; 
+        text-decoration: none; 
+        border-bottom: 1px solid rgba(0,0,0,0.25); 
+        text-align: center;
+    } 
+    #menu a:last-child { 
+        border: none; 
+    } 
+    #menu a:hover { 
+        background-color: #f8f8f8; 
+        color: #404040; 
+    } 
+    #menu a.active { 
+        background-color:
+        #3887be; 
+        color: #ffffff; 
+    } 
+    #menu a.active:hover { 
+        background: #3074a4; 
+    }
+    </style>
+    
+    <nav id="menu"></nav>
+    <!-- <div id="map"></div> -->
+
     <div class='grid bg-gray-dark absolute h-full w-full'>
         <div class='col col--12 border-b border--white color-white'>
             <h1 class='txt-h2 mx36 my24 inline-block'>Probability of a White Christmas</h1>
@@ -46,7 +88,7 @@
         center: [-98.35, 36.50],    //center on the continental center of US
         zoom: 3.8// starting zoom
     });
-
+ 
     map.on('load', function () {
 
         // request our GEOJSON data
@@ -82,17 +124,31 @@
                     },
                     // color circles by probability of snow_depth, using data-driven styles
                     'circle-color': {
-                        "property": "Probability_of_Snow_Depth_GT_0",
+                        "property": "Zone",
                         "type": "exponential",
                         stops: [
-                            [.05, "rgb(216,236,216)"],
-                            [.25, "rgb(196,225,255)"],
-                            [.4, "rgb(145,191,255)"],
-                            [.6, "rgb(66,133,244)"],
-                            [.75, "rgb(54, 109, 237)"],
-                            [1, "rgb(37,95,219)"]]
+                            [1, "rgb(216,236,216)"],
+                            [2, "rgb(196,225,255)"],
+                            [3, "rgb(145,191,255)"],
+                            [4, "rgb(66,133,244)"],
+                            [5, "rgb(54, 109, 237)"],
+                            [6, "rgb(37,95,219)"],
+                            [7, "rgb(253,253,253)"]
+                        ]
                     },
-                    "circle-stroke-color": "white",
+                    "circle-stroke-color": {
+                        "property": "Zone",
+                        "type": "exponential",
+                        stops: [
+                            [1, "rgb(253,253,253)"],
+                            [2, "rgb(253,253,253)"],
+                            [3, "rgb(253,253,253)"],
+                            [4, "rgb(253,253,253)"],
+                            [5, "rgb(253,253,253)"],
+                            [6, "rgb(253,253,253)"],
+                            [7, "rgb(24, 10, 174)"]
+                        ]
+                    },
                     "circle-stroke-width": .5,
                     "circle-opacity": {
                         "stops": [
@@ -110,6 +166,9 @@
                     'source': {
                         'type': 'geojson',
                         'data': geojson // use the data as the data source}
+                    }, 
+                    'layout': {
+                        'visibility': 'none'
                     },
                     "maxzoom": 9,
                     "paint": {
@@ -212,6 +271,31 @@
 
 
     }); //end map load
+    var toggleableLayerIds = ['snow-heat'];
+
+    var link = document.createElement('a');
+    link.href = '#';
+    link.className = 'active';
+    link.textContent = "Heatmap on/off";
+    link.onclick = function (e) {
+        for (var index in toggleableLayerIds) {
+            var clickedLayer = toggleableLayerIds[index];
+            e.preventDefault();
+            e.stopPropagation();
+
+            var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+
+            if (visibility === 'visible') {
+                map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+                this.className = '';
+            } else {
+                this.className = 'active';
+                map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+            }
+        }
+    };
+    var layers = document.getElementById('menu');
+    layers.appendChild(link);
 
 </script>
 
