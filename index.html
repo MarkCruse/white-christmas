@@ -232,7 +232,7 @@
 
             map.on('mousemove', function (f) {
                 // console.log(f);
-
+                if (map.getLayoutProperty('snow-heat', 'visibility')=== 'visible') {
                 map.on('mouseenter', 'snowStats', function (e) {
                     var features = map.queryRenderedFeatures(e.point);
 
@@ -260,6 +260,22 @@
                              'Median Snowfall > 1" on Dec. 25th: <b>' + e.features[0].properties.Median_of_Snowfall_GT_0_inches + '"</b></font>')
                         .addTo(map);
                 }); //end click event
+            } else {
+                map.on('mouseenter', 'snowStats', function (e) {
+                var features = map.queryRenderedFeatures(e.point);
+
+                // Change the cursor style as a UI affordance.
+                map.getCanvas().style.cursor = 'pointer';
+                            // Populate the popup based on the feature found. At the current coordinates.
+                            popup.setLngLat(f.lngLat)
+                                .setHTML('<font size="2"><b>' + e.features[0].properties.Name + ' - ' + e.features[0].properties.State + '</b><br />Elevation: <b>' + e.features[0].properties.Elev + ' ft </b><br />' +
+                                'Probability of Snow Depth > 0": <b>' + ((e.features[0].properties.Probability_of_Snow_Depth_GT_0) * 100).toLocaleString() + '% </b><br />' +
+                                'Median Snow Depth > 0": <b>' + e.features[0].properties.Median_of_Snow_Depth_GT_0_inches + '"</b><br />' +
+                                'Probability of Snowfall > 1" on Dec. 25th: <b>' + ((e.features[0].properties.Probability_of_Snowfall_GT_0) * 100).toLocaleString() + '% </b><br />' +
+                                'Median Snowfall > 1" on Dec. 25th: <b>' + e.features[0].properties.Median_of_Snowfall_GT_0_inches + '"</b></font>')
+                                .addTo(map);
+                });
+            }
             });  // end mousemove
 
             // Change cursor back to a pointer when mouse leaves snowStats
