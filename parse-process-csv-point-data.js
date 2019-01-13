@@ -32,6 +32,7 @@ fs.readFile(path.join(__dirname, '/project-files/') + 'Christmas_Snow_Statistics
 });
 
 function formatFields(geojson) {
+    // states to exclude ['VI', 'UM', 'PW', 'PR', 'MP', 'MH', 'HI', 'GU', 'FM', 'AS', 'AK'];
     // shorthand to our features
     var features = geojson.features,
         newFeatures = []; // empty array for new features
@@ -85,7 +86,7 @@ function formatFields(geojson) {
         // we will use the existing feature type and geometry,
         // but we can use our new properties as the "properties" value
         // only include zones > 0
-        if (tempProps.Zone > 0 && tempProps.Median_of_Snow_Depth_GT_0_inches > 0) {
+        if (tempProps.Zone > 0 && tempProps.Median_of_Snow_Depth_GT_0_inches > 0 && tempProps.State != 'AK') {
             newFeatures.push({
                 "type": feature.type,
                 "geometry": feature.geometry,
