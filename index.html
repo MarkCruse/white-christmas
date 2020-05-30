@@ -105,11 +105,12 @@
         map.on('load', function () {
 
             // request our GEOJSON data
-            d3.json('data/xmas_snow_stats_point_data.json', function (geojson) {
-                // when loaded
-                addLayer(geojson);
-                addInteraction(geojson);
-            });
+            d3.json('https://raw.githubusercontent.com/MarkCruse/white-christmas/master/data/xmas_snow_stats_point_data.json',
+                function (geojson) {
+                    // when loaded
+                    addLayer(geojson);
+                    addInteraction(geojson);
+                });
 
             map.fitBounds([-124.8, 24.53, -65.83, 49.38], {
                 padding: {
@@ -263,9 +264,9 @@
                             popup.setLngLat(f.lngLat)
                                 .setHTML('<font size="4">' + ((e.features[0].properties
                                         .Probability_of_Snow_Depth_GT_0) * 100)
-                                .toLocaleString() + '% chance of a White Christmas' +
+                                    .toLocaleString() + '% chance of a White Christmas' +
                                     '</font> <font size = "2" ><br /><br />Click point for weather station information</font>'
-                                    )
+                                )
                                 .addTo(map);
                         }); //end mouse enter event
 
@@ -288,7 +289,7 @@
                                     .Median_of_Snow_Depth_GT_0_inches + '"</b><br />' +
                                     'Probability of Snowfall > 1" on Dec. 25th: <b>' + ((e
                                         .features[0].properties.Probability_of_Snowfall_GT_0
-                                        ) * 100).toLocaleString() + '% </b><br />' +
+                                    ) * 100).toLocaleString() + '% </b><br />' +
                                     'Median Snowfall > 1" on Dec. 25th: <b>' + e.features[0]
                                     .properties.Median_of_Snowfall_GT_0_inches + '"</b></font>')
                                 .addTo(map);
@@ -312,7 +313,7 @@
                                     .Median_of_Snow_Depth_GT_0_inches + '"</b><br />' +
                                     'Probability of Snowfall > 1" on Dec. 25th: <b>' + ((e
                                         .features[0].properties.Probability_of_Snowfall_GT_0
-                                        ) * 100).toLocaleString() + '% </b><br />' +
+                                    ) * 100).toLocaleString() + '% </b><br />' +
                                     'Median Snowfall > 1" on Dec. 25th: <b>' + e.features[0]
                                     .properties.Median_of_Snowfall_GT_0_inches + '"</b></font>')
                                 .addTo(map);
