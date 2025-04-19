@@ -1,22 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <meta charset='utf-8' />
+    <meta charset="utf-8" />
     <title>Probability of a White Christmas</title>
-    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://api.mapbox.com/mapbox-assembly/v0.19.0/assembly.min.css" rel="stylesheet">
-    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.42.2/mapbox-gl.css' rel='stylesheet' />
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
     <style>
         body {
             margin: 0;
             padding: 0;
         }
-    </style>
-</head>
 
-<body>
-    <style>
         #menu {
             background: #fff;
             position: absolute;
@@ -33,332 +29,220 @@
             font-size: 13px;
             color: #404040;
             display: block;
-            margin: 0;
-            padding: 0;
             padding: 10px;
             text-decoration: none;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.25);
             text-align: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.25);
         }
 
         #menu a:last-child {
-            border: none;
+            border-bottom: none;
         }
 
         #menu a:hover {
             background-color: #f8f8f8;
-            color: #404040;
         }
 
         #menu a.active {
-            background-color:
-                #3887be;
-            color: #ffffff;
+            background-color: #3887be;
+            color: #fff;
         }
 
         #menu a.active:hover {
-            background: #3074a4;
+            background-color: #3074a4;
         }
     </style>
+</head>
 
+<body>
     <nav id="menu"></nav>
-    <!-- <div id="map"></div> -->
 
-    <div class='grid bg-gray-dark absolute h-full w-full'>
-        <div class='col col--12 border-b border--white color-white'>
-            <h1 class='txt-h2 mx36 my24 inline-block'>Probability of a White Christmas</h1>
-            <p class='fr mr24 mt36'>Map created by: Mark Cruse<br />
+    <div class="grid bg-gray-dark absolute h-full w-full">
+        <div class="col col--12 border-b border--white color-white">
+            <h1 class="txt-h2 mx36 my24 inline-block">Probability of a White Christmas</h1>
+            <p class="fr mr24 mt36">
+                Map created by: Mark Cruse<br />
                 Source:
-                <a class='link' target='_blank'
-                    href='http://journals.ametsoc.org/doi/abs/10.1175/BAMS-D-15-00038.1'>White
-                    Christmas? An Application of NOAA’s 1981–2010 Daily Normals</a>
+                <a class="link" target="_blank" href="http://journals.ametsoc.org/doi/abs/10.1175/BAMS-D-15-00038.1">
+                    NOAA 1981–2010 Daily Normals
+                </a>
             </p>
         </div>
-        <div class='col col--12 h-full relative'>
-            <div id='map' class='w-full h-full'></div>
+        <div class="col col--12 h-full relative">
+            <div id="map" class="w-full h-full"></div>
         </div>
     </div>
+
     <script async defer src="https://api.mapbox.com/mapbox-assembly/v0.19.0/assembly.js"></script>
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
-    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
-
+    <script src="https://d3js.org/d3.v5.min.js"></script>
 
     <script>
-        // access token
-        mapboxgl.accessToken =
-            'pk.eyJ1IjoibWRjcnVzZSIsImEiOiJjbTlvYXd3Y2UwczFxMmpxNWt1eHN3M3doIn0.xubPWJsqn9wkm6qKSBZ-OQ';
+        mapboxgl.accessToken = 'pk.eyJ1IjoibWRjcnVzZSIsImEiOiJjbTlvYXd3Y2UwczFxMmpxNWt1eHN3M3doIn0.xubPWJsqn9wkm6qKSBZ-OQ';
 
+        const popup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false });
 
-        // Create a popup, but don't add it to the map yet.
-        var popup = new mapboxgl.Popup({
-            closeButton: false,
-            closeOnClick: false
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/outdoors-v12',
+            center: [-98.35, 36.50],
+            zoom: 3.8
         });
 
-        // create a new map
-        var map = new mapboxgl.Map({
-            container: 'map', // container id
-            style: 'mapbox://styles/mapbox/outdoors-v12', // stylesheet location
-            center: [-98.35, 36.50], //center on the continental center of US
-            zoom: 3.8 // starting zoom
-        });
-
-        map.on('load', function () {
-
-            // request our GEOJSON data
-            d3.json('https://raw.githubusercontent.com/MarkCruse/white-christmas/master/data/xmas_snow_stats_point_data.json',
-                function (geojson) {
-                    // when loaded
-                    addLayer(geojson);
-                    addInteraction(geojson);
+        map.on('load', () => {
+            d3.json('https://raw.githubusercontent.com/MarkCruse/white-christmas/master/data/xmas_snow_stats_point_data.json')
+                .then(data => {
+                    addLayers(data);
+                    addInteraction();
                 });
 
             map.fitBounds([-124.8, 24.53, -65.83, 49.38], {
-                padding: {
-                    top: 10,
-                    bottom: 100,
-                    left: 70,
-                    right: 125
+                padding: { top: 10, bottom: 100, left: 70, right: 125 }
+            });
+
+            map.setMaxBounds(map.getBounds());
+        });
+
+        function addLayers(geojson) {
+            map.addLayer({
+                id: 'snowStats',
+                type: 'circle',
+                source: { type: 'geojson', data: geojson },
+                paint: {
+                    'circle-radius': {
+                        property: 'Zone',
+                        base: 6,
+                        stops: [[4, 6], [6, 12], [14, 20]]
+                    },
+                    'circle-color': {
+                        property: 'Zone',
+                        type: 'exponential',
+                        stops: [
+                            [1, "rgb(216,236,216)"],
+                            [2, "rgb(196,225,255)"],
+                            [3, "rgb(145,191,255)"],
+                            [4, "rgb(66,133,244)"],
+                            [5, "rgb(54,109,237)"],
+                            [6, "rgb(37,95,219)"],
+                            [7, "rgb(253,253,253)"]
+                        ]
+                    },
+                    'circle-stroke-color': {
+                        property: 'Zone',
+                        type: 'exponential',
+                        stops: [
+                            [1, "rgb(253,253,253)"],
+                            [7, "rgb(24, 10, 174)"]
+                        ]
+                    },
+                    'circle-stroke-width': 0.5,
+                    'circle-opacity': {
+                        stops: [[0.05, 0], [5, 1]]
+                    }
+                }
+            }, 'waterway-label');
+
+            map.addLayer({
+                id: 'snow-heat',
+                type: 'heatmap',
+                source: { type: 'geojson', data: geojson },
+                layout: { visibility: 'visible' },
+                maxzoom: 9,
+                paint: {
+                    'heatmap-weight': {
+                        property: 'Probability_of_Snow_Depth_GT_0',
+                        type: 'exponential',
+                        stops: [[0, 0], [1, 6]]
+                    },
+                    'heatmap-intensity': {
+                        stops: [[0, 1], [9, 3]]
+                    },
+                    'heatmap-color': [
+                        "interpolate", ["linear"], ["heatmap-density"],
+                        0, "rgb(186,213,238)",
+                        0.2, "rgb(209,227,243)",
+                        0.4, "rgb(220,234,246)",
+                        0.6, "rgb(232,241,249)",
+                        0.8, "rgb(243,248,252)",
+                        1, "rgb(246,246,246)"
+                    ],
+                    'heatmap-radius': {
+                        stops: [[0, 2], [9, 20]]
+                    },
+                    'heatmap-opacity': {
+                        default: 1,
+                        stops: [[7, 1], [9, 0]]
+                    }
                 }
             });
-            // set the max bounds
-            map.setMaxBounds(map.getBounds())
+        }
 
-            function addLayer(geojson) {
-                //console.log(geojson);
-                //Add a layer for the point data
-                map.addLayer({
-                    'id': 'snowStats',
-                    'type': 'circle',
-                    'source': {
-                        'type': 'geojson',
-                        'data': geojson // use the data as the data source}
-                    },
-                    'paint': {
-                        // make circles larger as the user zooms 
-                        'circle-radius': {
-                            'property': 'Zone',
-                            'base': 6,
-                            'stops': [
-                                [4, 6],
-                                [6, 12],
-                                [14, 20]
-                            ]
-                        },
-                        // color circles by probability of snow_depth, using data-driven styles
-                        'circle-color': {
-                            "property": "Zone",
-                            "type": "exponential",
-                            stops: [
-                                [1, "rgb(216,236,216)"],
-                                [2, "rgb(196,225,255)"],
-                                [3, "rgb(145,191,255)"],
-                                [4, "rgb(66,133,244)"],
-                                [5, "rgb(54, 109, 237)"],
-                                [6, "rgb(37,95,219)"],
-                                [7, "rgb(253,253,253)"]
-                            ]
-                        },
-                        "circle-stroke-color": {
-                            "property": "Zone",
-                            "type": "exponential",
-                            stops: [
-                                [1, "rgb(253,253,253)"],
-                                [2, "rgb(253,253,253)"],
-                                [3, "rgb(253,253,253)"],
-                                [4, "rgb(253,253,253)"],
-                                [5, "rgb(253,253,253)"],
-                                [6, "rgb(253,253,253)"],
-                                [7, "rgb(24, 10, 174)"]
-                            ]
-                        },
-                        "circle-stroke-width": .5,
-                        "circle-opacity": {
-                            "stops": [
-                                [.05, 0],
-                                [5, 1]
-                            ]
-                        }
-                    }
-                }, 'waterway-label'); // end addLayer point data
+        function addInteraction() {
+            map.on('mouseenter', 'snowStats', e => {
+                const f = e.lngLat;
+                const props = e.features[0].properties;
+                map.getCanvas().style.cursor = 'pointer';
 
-                //Add a layer for the heatmap data
-                map.addLayer({
-                    "id": "snow-heat",
-                    "type": "heatmap",
-                    'source': {
-                        'type': 'geojson',
-                        'data': geojson // use the data as the data source}
-                    },
-                    'layout': {
-                        'visibility': 'visible'
-                    },
-                    "maxzoom": 9,
-                    "paint": {
-                        //Increase the heatmap weight based on 
-                        "heatmap-weight": {
-                            // "property": "Probability_of_Snow_Depth_>_0",
-                            "property": "Probability_of_Snow_Depth_GT_0",
-                            "type": "exponential",
-                            "stops": [
-                                [0, 0],
-                                [1, 6]
-                            ]
-                        },
-                        //Increase the heatmap color weight weight by zoom level
-                        //heatmap-intensity is a multiplier on top of heatmap-weight
-                        "heatmap-intensity": {
-                            "stops": [
-                                [0, 1],
-                                [9, 3]
-                            ]
-                        },
-                        //Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
-                        //Begin color ramp at 0-stop with a 0-transparancy color
-                        //to create a blur-like effect.
-                        "heatmap-color": [
-                            "interpolate",
-                            ["linear"],
-                            ["heatmap-density"],
-                            0, "rgb(186,213,238)",
-                            0.2, "rgb(209,227,243)",
-                            0.4, "rgb(220,234,246)",
-                            0.6, "rgb(232,241,249)",
-                            0.8, "rgb(243,248,252)",
-                            1, "rgb(246,246,246)"
-                        ],
-                        //Adjust the heatmap radius by zoom level
-                        "heatmap-radius": {
-                            "stops": [
-                                [0, 2],
-                                [9, 20]
-                            ]
-                        },
-                        //Transition from heatmap to circle layer by zoom level
-                        "heatmap-opacity": {
-                            "default": 1,
-                            "stops": [
-                                [7, 1],
-                                [9, 0]
-                            ]
-                        }
-                    } // end paint
+                if (map.getLayoutProperty('snow-heat', 'visibility') === 'visible') {
+                    popup.setLngLat(f)
+                        .setHTML(`<font size="4">${(props.Probability_of_Snow_Depth_GT_0 * 100).toFixed(1)}% chance of a White Christmas</font>
+                                  <font size="2"><br /><br />Click point for weather station information</font>`)
+                        .addTo(map);
+                } else {
+                    popup.setLngLat(f)
+                        .setHTML(`<font size="2"><b>${props.Name} - ${props.State}</b><br />
+                                  Elevation: <b>${props.Elev} ft</b><br />
+                                  Probability of Snow Depth > 0": <b>${(props.Probability_of_Snow_Depth_GT_0 * 100).toFixed(1)}%</b><br />
+                                  Median Snow Depth > 0": <b>${props.Median_of_Snow_Depth_GT_0_inches}"</b><br />
+                                  Probability of Snowfall > 1" on Dec. 25th: <b>${(props.Probability_of_Snowfall_GT_0 * 100).toFixed(1)}%</b><br />
+                                  Median Snowfall > 1" on Dec. 25th: <b>${props.Median_of_Snowfall_GT_0_inches}"</b></font>`)
+                        .addTo(map);
+                }
+            });
 
-                }); //end add layer heat
+            map.on('mouseleave', 'snowStats', () => {
+                map.getCanvas().style.cursor = '';
+                popup.remove();
+            });
 
-            }
+            map.on('click', 'snowStats', e => {
+                const f = e.lngLat;
+                const props = e.features[0].properties;
 
-            function addInteraction(geojson) {
-                //Use mousemove to track the geo location of the mouse pointer
-                //the location is critical for the popup box
+                popup.setLngLat(f)
+                    .setHTML(`<font size="2"><b>${props.Name} - ${props.State}</b><br />
+                              Elevation: <b>${props.Elev} ft</b><br />
+                              Probability of Snow Depth > 0": <b>${(props.Probability_of_Snow_Depth_GT_0 * 100).toFixed(1)}%</b><br />
+                              Median Snow Depth > 0": <b>${props.Median_of_Snow_Depth_GT_0_inches}"</b><br />
+                              Probability of Snowfall > 1" on Dec. 25th: <b>${(props.Probability_of_Snowfall_GT_0 * 100).toFixed(1)}%</b><br />
+                              Median Snowfall > 1" on Dec. 25th: <b>${props.Median_of_Snowfall_GT_0_inches}"</b></font>`)
+                    .addTo(map);
+            });
+        }
 
-                map.on('mousemove', function (f) {
-                    // console.log(f);
-                    if (map.getLayoutProperty('snow-heat', 'visibility') === 'visible') {
-                        map.on('mouseenter', 'snowStats', function (e) {
-                            var features = map.queryRenderedFeatures(e.point);
-
-                            // Change the cursor style as a UI affordance.
-                            map.getCanvas().style.cursor = 'pointer';
-
-                            // Populate the popup based on the feature found. At the current coordinates.
-                            popup.setLngLat(f.lngLat)
-                                .setHTML('<font size="4">' + ((e.features[0].properties
-                                    .Probability_of_Snow_Depth_GT_0) * 100)
-                                    .toLocaleString() + '% chance of a White Christmas' +
-                                    '</font> <font size = "2" ><br /><br />Click point for weather station information</font>'
-                                )
-                                .addTo(map);
-                        }); //end mouse enter event
-
-                        map.on('click', 'snowStats', function (e) {
-                            var features = map.queryRenderedFeatures(e.point);
-
-                            // Change the cursor style as a UI affordance.
-                            map.getCanvas().style.cursor = 'pointer';
-
-                            // Populate the popup based on the feature found. At the current coordinates.
-                            popup.setLngLat(f.lngLat)
-                                .setHTML('<font size="2"><b>' + e.features[0].properties.Name +
-                                    ' - ' + e.features[0].properties.State +
-                                    '</b><br />Elevation: <b>' + e.features[0].properties.Elev +
-                                    ' ft </b><br />' +
-                                    'Probability of Snow Depth > 0": <b>' + ((e.features[0]
-                                        .properties.Probability_of_Snow_Depth_GT_0) * 100)
-                                        .toLocaleString() + '% </b><br />' +
-                                    'Median Snow Depth > 0": <b>' + e.features[0].properties
-                                        .Median_of_Snow_Depth_GT_0_inches + '"</b><br />' +
-                                    'Probability of Snowfall > 1" on Dec. 25th: <b>' + ((e
-                                        .features[0].properties.Probability_of_Snowfall_GT_0
-                                    ) * 100).toLocaleString() + '% </b><br />' +
-                                    'Median Snowfall > 1" on Dec. 25th: <b>' + e.features[0]
-                                        .properties.Median_of_Snowfall_GT_0_inches + '"</b></font>')
-                                .addTo(map);
-                        }); //end click event
-                    } else {
-                        map.on('mouseenter', 'snowStats', function (e) {
-                            var features = map.queryRenderedFeatures(e.point);
-
-                            // Change the cursor style as a UI affordance.
-                            map.getCanvas().style.cursor = 'pointer';
-                            // Populate the popup based on the feature found. At the current coordinates.
-                            popup.setLngLat(f.lngLat)
-                                .setHTML('<font size="2"><b>' + e.features[0].properties.Name +
-                                    ' - ' + e.features[0].properties.State +
-                                    '</b><br />Elevation: <b>' + e.features[0].properties.Elev +
-                                    ' ft </b><br />' +
-                                    'Probability of Snow Depth > 0": <b>' + ((e.features[0]
-                                        .properties.Probability_of_Snow_Depth_GT_0) * 100)
-                                        .toLocaleString() + '% </b><br />' +
-                                    'Median Snow Depth > 0": <b>' + e.features[0].properties
-                                        .Median_of_Snow_Depth_GT_0_inches + '"</b><br />' +
-                                    'Probability of Snowfall > 1" on Dec. 25th: <b>' + ((e
-                                        .features[0].properties.Probability_of_Snowfall_GT_0
-                                    ) * 100).toLocaleString() + '% </b><br />' +
-                                    'Median Snowfall > 1" on Dec. 25th: <b>' + e.features[0]
-                                        .properties.Median_of_Snowfall_GT_0_inches + '"</b></font>')
-                                .addTo(map);
-                        });
-                    }
-                }); // end mousemove
-
-                // Change cursor back to a pointer when mouse leaves snowStats
-                // Turn off popup when mouse leaves snowStats
-                map.on('mouseleave', 'snowStats', function () {
-                    map.getCanvas().style.cursor = '';
-                    popup.remove();
-                });
-            } // end function addInteraction
-
-
-        }); //end map load
-        var toggleableLayerIds = ['snow-heat'];
-
-        var link = document.createElement('a');
+        // Layer toggle UI
+        const toggleableLayerIds = ['snow-heat'];
+        const menu = document.getElementById('menu');
+        const link = document.createElement('a');
         link.href = '#';
         link.className = 'active';
-        link.textContent = "Heatmap on/off";
+        link.textContent = 'Heatmap on/off';
         link.onclick = function (e) {
-            for (var index in toggleableLayerIds) {
-                var clickedLayer = toggleableLayerIds[index];
-                e.preventDefault();
-                e.stopPropagation();
+            e.preventDefault();
+            e.stopPropagation();
+            const layer = toggleableLayerIds[0];
+            const visibility = map.getLayoutProperty(layer, 'visibility');
 
-                var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
-
-                if (visibility === 'visible') {
-                    map.setLayoutProperty(clickedLayer, 'visibility', 'none');
-                    this.className = '';
-                } else {
-                    this.className = 'active';
-                    map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
-                }
+            if (visibility === 'visible') {
+                map.setLayoutProperty(layer, 'visibility', 'none');
+                this.className = '';
+            } else {
+                map.setLayoutProperty(layer, 'visibility', 'visible');
+                this.className = 'active';
             }
         };
-        var layers = document.getElementById('menu');
-        layers.appendChild(link);
+        menu.appendChild(link);
     </script>
-
 </body>
 
 </html>
