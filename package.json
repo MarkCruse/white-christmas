@@ -1,0 +1,23 @@
+{
+  "name": "white-christmas",
+  "version": "1.0.0",
+  "description": "This project uses aggregated data from the National Centers for Environmental Information that depicts the historical probability of there being 1 inch of snow or more on the ground on a Christmas Day in the continental United States. The data is based on the [1981-2010 Climate Normals](https://www.ncdc.noaa.gov/data-access/land-based-station-data/land-based-datasets/climate-normals/1981-2010-normals-data) which is the latest three-decade averages of several climatological measurements. The data was compiled by Imke Durre and Michael F. Squires and published in the Bulletin of the American Meteorological Society in December 2015.  The data scientists work is entitled, [White Christmas? An application of NOAA's 1981-2010 Daily Normals](http://journals.ametsoc.org/doi/abs/10.1175/BAMS-D-15-00038.1).",
+  "main": "parse-process-csv-point-data.js",
+  "dependencies": {
+    "csv2geojson": "^5.1.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MarkCruse/white-christmas.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MarkCruse/white-christmas/issues"
+  },
+  "homepage": "https://github.com/MarkCruse/white-christmas#readme"
+}
