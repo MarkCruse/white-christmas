@@ -91,20 +91,21 @@
         });
 
         map.on('load', () => {
-            d3.json('https://raw.githubusercontent.com/MarkCruse/white-christmas/master/data/xmas_snow_stats_point_data.json')
-                .then(data => {
-                    addLayers(data);
-                    addInteraction();
-                })
-                .catch(err => {
-                    console.error('Error loading snow data:', err);
-                });
-
             map.fitBounds([-124.8, 24.53, -65.83, 49.38], {
                 padding: { top: 10, bottom: 100, left: 70, right: 125 }
             });
-
             map.setMaxBounds(map.getBounds());
+
+            map.once('idle', () => {
+                d3.json('https://raw.githubusercontent.com/MarkCruse/white-christmas/master/data/xmas_snow_stats_point_data.json')
+                    .then(data => {
+                        addLayers(data);
+                        addInteraction();
+                    })
+                    .catch(err => {
+                        console.error('Error loading snow data:', err);
+                    });
+            });
         });
 
         function addLayers(geojson) {
