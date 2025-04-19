@@ -78,35 +78,29 @@
     <script src="https://d3js.org/d3.v5.min.js"></script>
 
     <script>
-        mapboxgl.accessToken = 'pk.eyJ1IjoibWRjcnVzZSIsImEiOiJjbTZtOTVocGEwYnFyMnFxNXdndzJheW9vIn0.lJ9K99heIvPDCABZwrcsdQ';
-
-        const map = new mapboxgl.Map({
-            container: 'map',
-            style: 'mapbox://styles/mapbox/dark-v12',
-            center: [-98.5795, 39.8283],
-            zoom: 3.25
-        });
+        mapboxgl.accessToken = 'pk.eyJ1IjoibWRjcnVzZSIsImEiOiJjbTlvZGljZmIweWFmMmlwdjhxc3d0anl2In0.uPUj9yZh0yPjwjiApe7bOw';
 
         const popup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false });
 
-        map.on('style.load', () => {
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/outdoors-v12',
+            center: [-98.35, 36.50],
+            zoom: 3.8
+        });
+
+        map.on('load', () => {
             d3.json('https://raw.githubusercontent.com/MarkCruse/white-christmas/master/data/xmas_snow_stats_point_data.json')
                 .then(data => {
                     addLayers(data);
                     addInteraction();
                 });
-        });
-
-        map.on('idle', () => {
-            if (!map.getLayer('snowStats')) return;
 
             map.fitBounds([-124.8, 24.53, -65.83, 49.38], {
-                padding: { top: 10, bottom: 100, left: 70, right: 125 },
-                duration: 1000
+                padding: { top: 10, bottom: 100, left: 70, right: 125 }
             });
 
             map.setMaxBounds(map.getBounds());
-            map.off('idle', arguments.callee);
         });
 
         function addLayers(geojson) {
