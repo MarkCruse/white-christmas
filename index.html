@@ -63,9 +63,9 @@
             <p class="fr mr24 mt36">
                 Map created by: Mark Cruse<br />
                 Source:
-                <a class="link" target="_blank" href="http://journals.ametsoc.org/doi/abs/10.1175/BAMS-D-15-00038.1">
-                    NOAA 1981–2010 Daily Normals
-                </a>
+                <a class="link" target="_blank"
+                    href="http://journals.ametsoc.org/doi/abs/10.1175/BAMS-D-15-00038.1">NOAA 1981–2010 Daily
+                    Normals</a>
             </p>
         </div>
         <div class="col col--12 h-full relative">
@@ -79,7 +79,6 @@
 
     <script>
         mapboxgl.accessToken = 'pk.eyJ1IjoibWRjcnVzZSIsImEiOiJjbTlvZGljZmIweWFmMmlwdjhxc3d0anl2In0.uPUj9yZh0yPjwjiApe7bOw';
-
         const SNOW_HEAT_LAYER = 'snow-heat';
         const popup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false });
 
@@ -90,25 +89,61 @@
             zoom: 3.8
         });
 
+        // Wait for map to load before adding data
         map.on('load', () => {
+            // Set the map bounds
             map.fitBounds([-124.8, 24.53, -65.83, 49.38], {
                 padding: { top: 10, bottom: 100, left: 70, right: 125 }
             });
             map.setMaxBounds(map.getBounds());
 
-            map.once('idle', () => {
-                d3.json('https://raw.githubusercontent.com/MarkCruse/white-christmas/master/data/xmas_snow_stats_point_data.json')
-                    .then(data => {
-                        addLayers(data);
-                        addInteraction();
-                    })
-                    .catch(err => {
-                        console.error('Error loading snow data:', err);
-                    });
-            });
+            // Load the data and add layers
+            d3.json('https://raw.githubusercontent.com/MarkCruse/white-christmas/master/data/xmas_snow_stats_point_data.json')
+                .then(data => {
+                    addLayers(data);
+                    addInteraction();
+                    setupUI();
+                })
+                .catch(err => console.error('Error loading snow data:', err));
         });
 
         function addLayers(geojson) {
+            // Add the heat layer
+            map.addLayer({
+                id: SNOW_HEAT_LAYER,
+                type: 'heatmap',
+                source: { type: 'geojson', data: geojson },
+                layout: { visibility: 'visible' },
+                maxzoom: 9,
+                paint: {
+                    'heatmap-weight': {
+                        property: 'Probability_of_Snow_Depth_GT_0',
+                        type: 'exponential',
+                        stops: [[0, 0], [1, 6]]
+                    },
+                    'heatmap-intensity': {
+                        stops: [[0, 1], [9, 3]]
+                    },
+                    'heatmap-color': [
+                        "interpolate", ["linear"], ["heatmap-density"],
+                        0, "rgb(186,213,238)",
+                        0.2, "rgb(209,227,243)",
+                        0.4, "rgb(220,234,246)",
+                        0.6, "rgb(232,241,249)",
+                        0.8, "rgb(243,248,252)",
+                        1, "rgb(246,246,246)"
+                    ],
+                    'heatmap-radius': {
+                        stops: [[0, 2], [9, 20]]
+                    },
+                    'heatmap-opacity': {
+                        default: 1,
+                        stops: [[7, 1], [9, 0]]
+                    }
+                }
+            });
+
+            // Add the point layer
             map.addLayer({
                 id: 'snowStats',
                 type: 'circle',
@@ -145,59 +180,25 @@
                         stops: [[0.05, 0], [5, 1]]
                     }
                 }
-            }, 'waterway-label');
-
-            map.addLayer({
-                id: SNOW_HEAT_LAYER,
-                type: 'heatmap',
-                source: { type: 'geojson', data: geojson },
-                layout: { visibility: 'visible' },
-                maxzoom: 9,
-                paint: {
-                    'heatmap-weight': {
-                        property: 'Probability_of_Snow_Depth_GT_0',
-                        type: 'exponential',
-                        stops: [[0, 0], [1, 6]]
-                    },
-                    'heatmap-intensity': {
-                        stops: [[0, 1], [9, 3]]
-                    },
-                    'heatmap-color': [
-                        "interpolate", ["linear"], ["heatmap-density"],
-                        0, "rgb(186,213,238)",
-                        0.2, "rgb(209,227,243)",
-                        0.4, "rgb(220,234,246)",
-                        0.6, "rgb(232,241,249)",
-                        0.8, "rgb(243,248,252)",
-                        1, "rgb(246,246,246)"
-                    ],
-                    'heatmap-radius': {
-                        stops: [[0, 2], [9, 20]]
-                    },
-                    'heatmap-opacity': {
-                        default: 1,
-                        stops: [[7, 1], [9, 0]]
-                    }
-                }
-            });
+            }, 'road-label');
         }
 
         function getCompactPopupContent(props) {
             return `
-                <font size="4">${(props.Probability_of_Snow_Depth_GT_0 * 100).toFixed(1)}% chance of a White Christmas</font>
-                <font size="2"><br /><br />Click point for weather station information</font>
-            `;
+        <font size="4">${(props.Probability_of_Snow_Depth_GT_0 * 100).toFixed(1)}% chance of a White Christmas</font>
+        <font size="2"><br /><br />Click point for weather station information</font>
+      `;
         }
 
         function getDetailedPopupContent(props) {
             return `
-                <font size="2"><b>${props.Name} - ${props.State}</b><br />
-                Elevation: <b>${props.Elev} ft</b><br />
-                Probability of Snow Depth > 0": <b>${(props.Probability_of_Snow_Depth_GT_0 * 100).toFixed(1)}%</b><br />
-                Median Snow Depth > 0": <b>${props.Median_of_Snow_Depth_GT_0_inches}"</b><br />
-                Probability of Snowfall > 1" on Dec. 25th: <b>${(props.Probability_of_Snowfall_GT_0 * 100).toFixed(1)}%</b><br />
-                Median Snowfall > 1" on Dec. 25th: <b>${props.Median_of_Snowfall_GT_0_inches}"</b></font>
-            `;
+        <font size="2"><b>${props.Name} - ${props.State}</b><br />
+        Elevation: <b>${props.Elev} ft</b><br />
+        Probability of Snow Depth > 0": <b>${(props.Probability_of_Snow_Depth_GT_0 * 100).toFixed(1)}%</b><br />
+        Median Snow Depth > 0": <b>${props.Median_of_Snow_Depth_GT_0_inches}"</b><br />
+        Probability of Snowfall > 1" on Dec. 25th: <b>${(props.Probability_of_Snowfall_GT_0 * 100).toFixed(1)}%</b><br />
+        Median Snowfall > 1" on Dec. 25th: <b>${props.Median_of_Snowfall_GT_0_inches}"</b></font>
+      `;
         }
 
         function addInteraction() {
@@ -223,26 +224,27 @@
             map.on('click', 'snowStats', e => {
                 const f = e.lngLat;
                 const props = e.features[0].properties;
-
                 popup.setLngLat(f)
                     .setHTML(getDetailedPopupContent(props))
                     .addTo(map);
             });
         }
 
-        // Layer toggle UI
-        const menu = document.getElementById('menu');
-        const link = document.createElement('a');
-        link.href = '#';
-        link.className = 'active';
-        link.textContent = 'Heatmap on/off';
-        link.onclick = function (e) {
-            e.preventDefault();
-            const visibility = map.getLayoutProperty(SNOW_HEAT_LAYER, 'visibility');
-            map.setLayoutProperty(SNOW_HEAT_LAYER, 'visibility', visibility === 'visible' ? 'none' : 'visible');
-            this.className = visibility === 'visible' ? '' : 'active';
-        };
-        menu.appendChild(link);
+        function setupUI() {
+            // UI for toggling heatmap visibility
+            const menu = document.getElementById('menu');
+            const link = document.createElement('a');
+            link.href = '#';
+            link.className = 'active';
+            link.textContent = 'Heatmap on/off';
+            link.onclick = function (e) {
+                e.preventDefault();
+                const visibility = map.getLayoutProperty(SNOW_HEAT_LAYER, 'visibility');
+                map.setLayoutProperty(SNOW_HEAT_LAYER, 'visibility', visibility === 'visible' ? 'none' : 'visible');
+                this.className = visibility === 'visible' ? '' : 'active';
+            };
+            menu.appendChild(link);
+        }
     </script>
 </body>
 
