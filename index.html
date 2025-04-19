@@ -82,45 +82,13 @@
 
         const map = new mapboxgl.Map({
             container: 'map',
-            style: 'mapbox://styles/mapbox/dark-v12',  // Initial style here
+            style: 'mapbox://styles/mapbox/dark-v12',
             center: [-98.5795, 39.8283],
             zoom: 3.25
-        });
-
-        // Only handle data + layers here
-        map.on('style.load', () => {
-            d3.json('https://raw.githubusercontent.com/MarkCruse/white-christmas/master/data/xmas_snow_stats_point_data.json')
-                .then(data => {
-                    addLayers(data);
-                    addInteraction();
-                });
-        });
-
-        // Zoom and set bounds once everything is ready
-        map.on('idle', () => {
-            if (!map.getLayer('snowStats')) return;
-
-            map.fitBounds([-124.8, 24.53, -65.83, 49.38], {
-                padding: { top: 10, bottom: 100, left: 70, right: 125 },
-                duration: 1000
-            });
-
-            map.setMaxBounds(map.getBounds());
-            map.off('idle', arguments.callee);
         });
 
         const popup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false });
 
-        mapboxgl.accessToken = 'pk.eyJ1IjoibWRjcnVzZSIsImEiOiJjbTZtOTVocGEwYnFyMnFxNXdndzJheW9vIn0.lJ9K99heIvPDCABZwrcsdQ';
-
-        const map = new mapboxgl.Map({
-            container: 'map',
-            style: 'mapbox://styles/mapbox/dark-v10',  // Initial style here
-            center: [-98.5795, 39.8283],
-            zoom: 3.25
-        });
-
-        // Only handle data + layers here
         map.on('style.load', () => {
             d3.json('https://raw.githubusercontent.com/MarkCruse/white-christmas/master/data/xmas_snow_stats_point_data.json')
                 .then(data => {
@@ -129,7 +97,6 @@
                 });
         });
 
-        // Zoom and set bounds once everything is ready
         map.on('idle', () => {
             if (!map.getLayer('snowStats')) return;
 
@@ -141,7 +108,6 @@
             map.setMaxBounds(map.getBounds());
             map.off('idle', arguments.callee);
         });
-
 
         function addLayers(geojson) {
             map.addLayer({
