@@ -85,7 +85,7 @@
     <script>
         // access token
         mapboxgl.accessToken =
-            'pk.eyJ1IjoibWRjcnVzZSIsImEiOiJjanZvN25kaHQxdzAxNDhwZjM4NDNvMXV4In0.s4GSawMNB7Jo4Vf7LXKEew';
+            'sk.eyJ1IjoibWRjcnVzZSIsImEiOiJjbTlvYWt1YXYxMmVnMmtwbXlhYm44dHhtIn0.rbLGcNiGzmfq6ko6V9d0Wg';
 
 
         // Create a popup, but don't add it to the map yet.
@@ -263,7 +263,7 @@
                             // Populate the popup based on the feature found. At the current coordinates.
                             popup.setLngLat(f.lngLat)
                                 .setHTML('<font size="4">' + ((e.features[0].properties
-                                        .Probability_of_Snow_Depth_GT_0) * 100)
+                                    .Probability_of_Snow_Depth_GT_0) * 100)
                                     .toLocaleString() + '% chance of a White Christmas' +
                                     '</font> <font size = "2" ><br /><br />Click point for weather station information</font>'
                                 )
@@ -284,14 +284,14 @@
                                     ' ft </b><br />' +
                                     'Probability of Snow Depth > 0": <b>' + ((e.features[0]
                                         .properties.Probability_of_Snow_Depth_GT_0) * 100)
-                                    .toLocaleString() + '% </b><br />' +
+                                        .toLocaleString() + '% </b><br />' +
                                     'Median Snow Depth > 0": <b>' + e.features[0].properties
-                                    .Median_of_Snow_Depth_GT_0_inches + '"</b><br />' +
+                                        .Median_of_Snow_Depth_GT_0_inches + '"</b><br />' +
                                     'Probability of Snowfall > 1" on Dec. 25th: <b>' + ((e
                                         .features[0].properties.Probability_of_Snowfall_GT_0
                                     ) * 100).toLocaleString() + '% </b><br />' +
                                     'Median Snowfall > 1" on Dec. 25th: <b>' + e.features[0]
-                                    .properties.Median_of_Snowfall_GT_0_inches + '"</b></font>')
+                                        .properties.Median_of_Snowfall_GT_0_inches + '"</b></font>')
                                 .addTo(map);
                         }); //end click event
                     } else {
@@ -308,14 +308,14 @@
                                     ' ft </b><br />' +
                                     'Probability of Snow Depth > 0": <b>' + ((e.features[0]
                                         .properties.Probability_of_Snow_Depth_GT_0) * 100)
-                                    .toLocaleString() + '% </b><br />' +
+                                        .toLocaleString() + '% </b><br />' +
                                     'Median Snow Depth > 0": <b>' + e.features[0].properties
-                                    .Median_of_Snow_Depth_GT_0_inches + '"</b><br />' +
+                                        .Median_of_Snow_Depth_GT_0_inches + '"</b><br />' +
                                     'Probability of Snowfall > 1" on Dec. 25th: <b>' + ((e
                                         .features[0].properties.Probability_of_Snowfall_GT_0
                                     ) * 100).toLocaleString() + '% </b><br />' +
                                     'Median Snowfall > 1" on Dec. 25th: <b>' + e.features[0]
-                                    .properties.Median_of_Snowfall_GT_0_inches + '"</b></font>')
+                                        .properties.Median_of_Snowfall_GT_0_inches + '"</b></font>')
                                 .addTo(map);
                         });
                     }
