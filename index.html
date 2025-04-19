@@ -78,6 +78,10 @@
     <script src="https://d3js.org/d3.v5.min.js"></script>
 
     <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoibWRjcnVzZSIsImEiOiJjbTlvYXd3Y2UwczFxMmpxNWt1eHN3M3doIn0.xubPWJsqn9wkm6qKSBZ-OQ';
+
+        const popup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false });
+
         mapboxgl.accessToken = 'pk.eyJ1Ijoiam9obnRvbnljbGUiLCJhIjoiY2xqZXczdWhzMDBoNzQxcGVuZDNtcXloNSJ9.nQL65vZ4tuDfChA68UgXAw';
 
         const map = new mapboxgl.Map({
@@ -109,21 +113,6 @@
             map.off('idle', arguments.callee);
         });
 
-
-        // Wait until everything is fully rendered before zooming and bounding
-        map.on('idle', () => {
-            if (!map.getLayer('snowStats')) return;
-
-            map.fitBounds([-124.8, 24.53, -65.83, 49.38], {
-                padding: { top: 10, bottom: 100, left: 70, right: 125 },
-                duration: 1000 // smooth zoom
-            });
-
-            map.setMaxBounds(map.getBounds());
-
-            // Remove this idle listener after first run
-            map.off('idle', arguments.callee);
-        });
 
         function addLayers(geojson) {
             map.addLayer({
