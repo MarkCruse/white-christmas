@@ -80,6 +80,7 @@
     <script>
         mapboxgl.accessToken = 'pk.eyJ1IjoibWRjcnVzZSIsImEiOiJjbTlvZGljZmIweWFmMmlwdjhxc3d0anl2In0.uPUj9yZh0yPjwjiApe7bOw';
 
+        const SNOW_HEAT_LAYER = 'snow-heat';
         const popup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false });
 
         const map = new mapboxgl.Map({
@@ -94,6 +95,9 @@
                 .then(data => {
                     addLayers(data);
                     addInteraction();
+                })
+                .catch(err => {
+                    console.error('Error loading snow data:', err);
                 });
 
             map.fitBounds([-124.8, 24.53, -65.83, 49.38], {
@@ -143,7 +147,7 @@
             }, 'waterway-label');
 
             map.addLayer({
-                id: 'snow-heat',
+                id: SNOW_HEAT_LAYER,
                 type: 'heatmap',
                 source: { type: 'geojson', data: geojson },
                 layout: { visibility: 'visible' },
@@ -177,27 +181,37 @@
             });
         }
 
+        function getCompactPopupContent(props) {
+            return `
+                <font size="4">${(props.Probability_of_Snow_Depth_GT_0 * 100).toFixed(1)}% chance of a White Christmas</font>
+                <font size="2"><br /><br />Click point for weather station information</font>
+            `;
+        }
+
+        function getDetailedPopupContent(props) {
+            return `
+                <font size="2"><b>${props.Name} - ${props.State}</b><br />
+                Elevation: <b>${props.Elev} ft</b><br />
+                Probability of Snow Depth > 0": <b>${(props.Probability_of_Snow_Depth_GT_0 * 100).toFixed(1)}%</b><br />
+                Median Snow Depth > 0": <b>${props.Median_of_Snow_Depth_GT_0_inches}"</b><br />
+                Probability of Snowfall > 1" on Dec. 25th: <b>${(props.Probability_of_Snowfall_GT_0 * 100).toFixed(1)}%</b><br />
+                Median Snowfall > 1" on Dec. 25th: <b>${props.Median_of_Snowfall_GT_0_inches}"</b></font>
+            `;
+        }
+
         function addInteraction() {
             map.on('mouseenter', 'snowStats', e => {
                 const f = e.lngLat;
                 const props = e.features[0].properties;
                 map.getCanvas().style.cursor = 'pointer';
 
-                if (map.getLayoutProperty('snow-heat', 'visibility') === 'visible') {
-                    popup.setLngLat(f)
-                        .setHTML(`<font size="4">${(props.Probability_of_Snow_Depth_GT_0 * 100).toFixed(1)}% chance of a White Christmas</font>
-                                  <font size="2"><br /><br />Click point for weather station information</font>`)
-                        .addTo(map);
-                } else {
-                    popup.setLngLat(f)
-                        .setHTML(`<font size="2"><b>${props.Name} - ${props.State}</b><br />
-                                  Elevation: <b>${props.Elev} ft</b><br />
-                                  Probability of Snow Depth > 0": <b>${(props.Probability_of_Snow_Depth_GT_0 * 100).toFixed(1)}%</b><br />
-                                  Median Snow Depth > 0": <b>${props.Median_of_Snow_Depth_GT_0_inches}"</b><br />
-                                  Probability of Snowfall > 1" on Dec. 25th: <b>${(props.Probability_of_Snowfall_GT_0 * 100).toFixed(1)}%</b><br />
-                                  Median Snowfall > 1" on Dec. 25th: <b>${props.Median_of_Snowfall_GT_0_inches}"</b></font>`)
-                        .addTo(map);
-                }
+                popup.setLngLat(f)
+                    .setHTML(
+                        map.getLayoutProperty(SNOW_HEAT_LAYER, 'visibility') === 'visible'
+                            ? getCompactPopupContent(props)
+                            : getDetailedPopupContent(props)
+                    )
+                    .addTo(map);
             });
 
             map.on('mouseleave', 'snowStats', () => {
@@ -210,18 +224,12 @@
                 const props = e.features[0].properties;
 
                 popup.setLngLat(f)
-                    .setHTML(`<font size="2"><b>${props.Name} - ${props.State}</b><br />
-                              Elevation: <b>${props.Elev} ft</b><br />
-                              Probability of Snow Depth > 0": <b>${(props.Probability_of_Snow_Depth_GT_0 * 100).toFixed(1)}%</b><br />
-                              Median Snow Depth > 0": <b>${props.Median_of_Snow_Depth_GT_0_inches}"</b><br />
-                              Probability of Snowfall > 1" on Dec. 25th: <b>${(props.Probability_of_Snowfall_GT_0 * 100).toFixed(1)}%</b><br />
-                              Median Snowfall > 1" on Dec. 25th: <b>${props.Median_of_Snowfall_GT_0_inches}"</b></font>`)
+                    .setHTML(getDetailedPopupContent(props))
                     .addTo(map);
             });
         }
 
         // Layer toggle UI
-        const toggleableLayerIds = ['snow-heat'];
         const menu = document.getElementById('menu');
         const link = document.createElement('a');
         link.href = '#';
@@ -229,17 +237,9 @@
         link.textContent = 'Heatmap on/off';
         link.onclick = function (e) {
             e.preventDefault();
-            e.stopPropagation();
-            const layer = toggleableLayerIds[0];
-            const visibility = map.getLayoutProperty(layer, 'visibility');
-
-            if (visibility === 'visible') {
-                map.setLayoutProperty(layer, 'visibility', 'none');
-                this.className = '';
-            } else {
-                map.setLayoutProperty(layer, 'visibility', 'visible');
-                this.className = 'active';
-            }
+            const visibility = map.getLayoutProperty(SNOW_HEAT_LAYER, 'visibility');
+            map.setLayoutProperty(SNOW_HEAT_LAYER, 'visibility', visibility === 'visible' ? 'none' : 'visible');
+            this.className = visibility === 'visible' ? '' : 'active';
         };
         menu.appendChild(link);
     </script>
